@@ -1,0 +1,46 @@
+#!/bin/bash
+usage () { echo 'Usage:' $0 ' [-d "cut delimiter option"] [-n "cut column number, default: 1"] [-f "input file"] [-o "output REPO path ending with /"] '; }
+
+# Defaults:
+n='1'
+d=\$'\n'
+
+while getopts ":n:d:f:o:h" opt; do # : after args
+  case ${opt} in
+    d ) d=${OPTARG} ;;
+    n ) n=${OPTARG} ;;
+    f ) f=${OPTARG} ;;
+    o ) o=${OPTARG} ;;
+    h ) usage ;;
+    \* )
+      echo "Invalid Option: -$OPTARG"
+      usage
+      exit 1
+      ;;
+    *)  echo Unknown option: $OPTARG.;;
+  esac
+done
+
+if ((OPTIND == 1)); then # pas d'arguments fourni lors de l execution
+    echo "No options specified, see -h option for usage"
+    exit
+
+elif [ -z "${f}" ] || [ -z "${o}" ]; then
+  exit
+
+elif [ -z "${d}" ]; then
+  shift "$((OPTIND-1))" # removes all the options that have been parsed
+  if [ ! -d $o ];  then
+    mkdir $o
+  fi
+  cut -f $n -d'$d' $f | sort  |uniq -c | sed 's/^ *// ' |sed 's/ /\t/ ' > ${o}${f}_nb 
+
+else
+  shift "$((OPTIND-1))" # removes all the options that have been parsed
+  if [ ! -d $o ];  then
+    mkdir $o
+  fi
+
+  ## CMD
+  cut -f $n $f | sort  |uniq -c | sed 's/^ *// ' |sed 's/ /\t/ ' > ${o}${f}_nb
+fi

@@ -1,0 +1,36 @@
+#!/bin/bash
+usage () { echo 'Usage:' $0 ' [-p "file path  ending with /"] [-f "file"] [-f "file extension"] [-o "output REPO"] '; }
+
+while getopts ":e:p:f:o:h" opt; do # : after args
+  case ${opt} in
+    e ) e=${OPTARG} ;;
+    p ) p=${OPTARG} ;;
+    f ) f=${OPTARG} ;;
+    o ) o=${OPTARG} ;;
+    h )
+        usage ;;
+    \* )
+      echo "Invalid Option: -$OPTARG"
+      usage
+      exit 1
+      ;;
+    *)  echo Unknown option: $OPTARG.;;
+#    h ) echo usage; exit;; # echo "Usage: cmd [-l] [-f] [-o] " ;;
+ #   \? ) echo "Unknown option: -$OPTARG" ; exit 1;;
+  esac
+done
+
+if ((OPTIND == 1)); then
+    echo "No options specified, see -h option for usage"
+    exit
+elif [ -z "${f}" ] || [ -z "${o}" ]; then
+  exit
+else
+  shift "$((OPTIND-1))" # removes all the options that have been parsed
+  if [ ! -d $o ];  then
+    mkdir $o
+  fi
+  cat ${p}${f}${e} | awk '$0 ~ ">" {print c; c=0;printf substr($0,2,100) "\t"; } $0 !~ ">" {c+=length($0);} END { print c; }' > ${o}/${f}_len
+  sed -i '1d' ${o}/${f}_len
+fi
+

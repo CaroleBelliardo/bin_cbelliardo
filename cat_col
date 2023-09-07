@@ -1,0 +1,49 @@
+#!/bin/bash
+usage () { echo 'Usage:' $0 ' [-f "input file"; obligatory option !!] [-d " dicoFile path, default: /lerins/hub/DB/TAXONOMY/online/taxonomy_lineage.txt"] [-K "key in dicoRef with $ prefixe", default: $1"] [-V "Value in dicoRef with $ prefixe, default: $2"] [-k "key in file with $ prefixe, default: $2"]  [-o "output REPO path ending with /"] '; }
+
+# Defaults:
+K='$1'
+V='$2'
+k='$2'
+l='$0'
+d='/lerins/hub/DB/TAXONOMY/online/taxonomy_lineage.txt'
+e='0'
+
+while getopts ":K:V:k:d:f:o:e:h" opt; do # : after args
+  case ${opt} in
+    K ) K=${OPTARG} ;;
+    V ) V=${OPTARG} ;;
+    k ) k=${OPTARG} ;;
+    d ) d=${OPTARG} ;;
+    f ) f=${OPTARG} ;;
+    o ) o=${OPTARG} ;;
+    e ) e=${OPTARG} ;;
+    h ) usage ;;
+    \* )
+      echo "Invalid Option: -$OPTARG"
+      usage
+      exit 1
+      ;;
+    *)  echo Unknown option: $OPTARG.;;
+  esac
+done
+
+if ((OPTIND == 1)); then # pas d'arguments fourni lors de l execution
+    echo "No options specified, see -h option for usage"
+    exit
+
+elif [ -z "${f}" ] || [ -z "${d}" ]; then
+  exit
+
+else
+  shift "$((OPTIND-1))" # removes all the options that have been parsed
+  if [ ! -d $o ];  then
+    mkdir $o
+  fi
+
+  ## CMD
+  awk 'BEGIN { OFS = "\t" } NR==FNR {h['$K'] = '$V'; next} {print $l,h['$k']}' $d $f | awk 'BEGIN { FS = OFS = "\t" } { for(i=1; i<=NF; i++) if($i ~ /^ *$/) $i = '$e' }; 1' > ${o}${f}_paste
+  #awk 'BEGIN { FS = OFS = "\t" } {if (!$NF) {print $0"Incomplete"} else {print $0}}'
+  #awk 'BEGIN { FS = OFS = "\t" } { for(i=1; i<=NF; i++) if($i ~ /^ *$/) $i = 0 }; 1' ${o}${f}_paste > ${o}${f}_paste_tmp #; mv ${o}${f}_paste_tmp ${o}${f}_paste
+
+fi

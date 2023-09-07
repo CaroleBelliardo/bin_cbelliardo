@@ -1,0 +1,29 @@
+#!/bin/bash
+usage () { echo 'Usage:' $0 ' [-f "file"] '; }
+
+while getopts ":n:f:h" opt; do # : after args
+  case ${opt} in
+    n ) n=${OPTARG} ;;
+    f ) f=${OPTARG} ;;
+    h )
+        usage ;;
+    \* )
+      echo "Invalid Option: -$OPTARG"
+      usage
+      exit 1
+      ;;
+    *)  echo Unknown option: $OPTARG.;;
+#    h ) echo usage; exit;; # echo "Usage: cmd [-f] " ;;
+ #   \? ) echo "Unknown option: -$OPTARG" ; exit 1;;
+  esac
+done
+
+if ((OPTIND == 1)); then
+    echo "No options specified, see -h option for usage"
+    exit
+elif [ -z "${f}" ]; then
+  exit
+else
+  shift "$((OPTIND-1))" # removes all the options that have been parsed
+  awk '$0 {a++}{ b=int(a/'$n')+1; print $0 > FILENAME"-split-"b}' $f
+fi

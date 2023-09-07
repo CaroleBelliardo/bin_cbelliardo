@@ -1,0 +1,34 @@
+#!/bin/bash
+usage () { echo 'Usage:' $0 ' [-s "separator type"] [-f "file"] [-o "output"] '; }
+
+
+while getopts ":s:f:o:" opt; do # : after args
+  case ${opt} in
+    s ) s=${OPTARG} ;;
+    f ) f=${OPTARG} ;;
+    o ) o=${OPTARG} ;;
+    \? ) usage ;; # 
+    *)  echo Unknown option: $OPTARG.;;
+#    h ) echo usage; exit;; # echo "Usage: cmd [-l] [-f] [-o] " ;;
+ #   \? ) echo "Unknown option: -$OPTARG" ; exit 1;;  
+  esac
+done
+
+if ((OPTIND == 1))
+then
+    echo "No options specified, see -h option for usage"
+fi
+
+if((OPTIND == 4))
+then
+  shift "$((OPTIND-1))" # removes all the options that have been parsed by getopts
+  awk -F $s '{print $NF}' ${f} > ${o}
+  echo ${o} 'ok!' >> ~/$0.log
+fi
+
+#shift "$((OPTIND-1))" # removes all the options that have been parsed by getopts
+
+#awk -F $s '{print $NF}' ${f} > ${o}
+
+#echo  $(cut -f1 -d'.'  $0).log
+#echo ${o} 'ok!' >> ~/$0.log
