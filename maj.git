@@ -1,1 +1,1 @@
-for i in * ; do cd /kwak/hub/25_cbelliardo/github/python; /kwak/hub/25_cbelliardo/github/bin_cbelliardo/gitPush 'maj' ;done 
+for i in * ; do cd /kwak/hub/25_cbelliardo/github/$i; /kwak/hub/25_cbelliardo/github/bin_cbelliardo/gitPush 'maj' ;done 
